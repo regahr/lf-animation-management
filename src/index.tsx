@@ -5,7 +5,7 @@ import App from "./App";
 import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
 import reportWebVitals from "./reportWebVitals";
 import { Client, Provider, fetchExchange } from "urql";
-import { cacheExchange, offlineExchange } from "@urql/exchange-graphcache";
+import { offlineExchange } from "@urql/exchange-graphcache";
 import { makeDefaultStorage } from "@urql/exchange-graphcache/default-storage";
 
 const storage = makeDefaultStorage({
@@ -17,40 +17,64 @@ const introspectedSchema = {
   __schema: {
     queryType: { name: "Query" },
     mutationType: { name: "Mutation" },
-    subscriptionType: { name: "Subscription" },
   },
 };
 
 const offlineCache = offlineExchange({
   schema: introspectedSchema,
-  storage,
-  resolvers: {
-    Query: {
-      getAnimations: (_parent, _args, cache) => {
-        const result: any = cache.resolve(
-          { __typename: "Query" },
-          "featuredPublicAnimations"
-        );
-        return result;
-      },
-    },
-  },
   updates: {
     Mutation: {
-      uploadAnimation(_result, args, _cache, _info) {
-        return {
-          __typename: "Animation",
-          lottieFile: args.lottieFile,
-          jsonFile: args.jsonFile,
-        };
+      uploadAnimation: (result, _args, cache, _info) => {
+        // Update the cache manually here
+        const AnimationList = /* GraphQL */ `
+          query getAnimation($filter: String) {
+            getAnimation(filter: $filter) {
+              id
+              name
+              createdAt
+              content {
+                filename
+                filetype
+                content
+                metadata
+              }
+            }
+          }
+        `;
+        cache
+          .inspectFields("Query")
+          .filter((field) => field.fieldName === "getAnimation")
+          .forEach((field) => {
+            cache.updateQuery(
+              {
+                query: AnimationList,
+                variables: { filter: field?.arguments?.filter || "" },
+              },
+              (data: any) => {
+                // console.log(data.getAnimation);
+                if (
+                  !data ||
+                  !(data && data.getAnimation && data.getAnimation.length)
+                )
+                  return { getAnimation: [result] };
+                return data;
+              }
+            );
+          });
       },
     },
   },
+  storage,
 });
 
 const client = new Client({
   exchanges: [offlineCache, fetchExchange],
-  url: "https://graphql.lottiefiles.com/2022-08",
+  url: "https://lf-animation-management-api.onrender.com/graphql",
+  fetchOptions: {
+    headers: {
+      "X-Custom-Header": "Allowed",
+    },
+  },
 });
 
 const root = ReactDOM.createRoot(
