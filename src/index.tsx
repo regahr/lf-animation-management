@@ -69,7 +69,7 @@ const offlineCache = offlineExchange({
 
 const client = new Client({
   exchanges: [offlineCache, fetchExchange],
-  url: "https://lf-animation-management-api.onrender.com/graphql",
+  url: process.env.REACT_APP_GRAPHQL_URL || "http://localhost:4000/graphql",
   fetchOptions: {
     headers: {
       "X-Custom-Header": "Allowed",
