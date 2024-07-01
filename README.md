@@ -30,12 +30,13 @@ This project is a frontend application for managing and displaying Lottie animat
 
 ## Design Decisions
 
-1. **URQL**: Chosen for its built-in offline support, state management through IndexedDB, easy-to-use hooks, and flexible cache tools.
+1. **URQL**: Chosen for its built-in offline support, URQL Graphacache for it's state management, along with IndexedDB for persisting application state and offline capabilities, easy-to-use hooks, and flexible cache tools.
 2. **React Lottie Player**: Used to render the fetched JSON animations that are uploaded through the `uploadAnimation` mutation and fetched via the `getAnimation` query.
-3. **TypeScript**: Set up for improved developer experience and type safety.
-4. **Progressive Web App (PWA)**: Configured to ensure the application supports offline-first functionality.
-5. **Tailwind CSS**: Utilized for quickly building UI components without spending too much time on CSS.
-6. **Prettier**: Included for consistent code formatting and cleanliness.
+3. **Vercel**: Chosen for deployment due to its ease of use and seamless integration with the development workflow.
+4. **TypeScript**: Set up for improved developer experience and type safety.
+5. **Progressive Web App (PWA)**: Configured to ensure the application supports offline-first functionality.
+6. **Tailwind CSS**: Utilized for quickly building UI components without spending too much time on CSS.
+7. **Prettier**: Included for consistent code formatting and cleanliness.
 
 ## Setup and Installation
 
